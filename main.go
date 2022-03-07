@@ -118,7 +118,6 @@ func spawnEphemeral(ctx context.Context) (icore.CoreAPI, error) {
 }
 
 //
-
 func connectToPeers(ctx context.Context, ipfs icore.CoreAPI, peers []string) error {
 	var wg sync.WaitGroup
 	peerInfos := make(map[peer.ID]*peer.AddrInfo, len(peers))
@@ -233,10 +232,10 @@ func main() {
 		panic(fmt.Errorf("Could not add Directory: %s", err))
 	}
 
-	fmt.Printf("Added directory `%s' to IPFS with CID %s\n", inputPathDirectory, cidDirectory.String())
-	fmt.Printf("Denyall = `http://localhost:4444/add?deny=true&cid=%s'\n", cidDirectory.Cid())
-	fmt.Printf("list = `http://localhost:4444/list\n")
-	fmt.Printf("remove = `http://localhost:4444/remove?id=42\n")
+	fmt.Printf("Added directory `%s' to IPFS with CID: %s\n", inputPathDirectory, cidDirectory.Cid())
+	fmt.Printf("Denyall = http://localhost:4444/add?deny=true&cid=%s\n", cidDirectory.Cid())
+	fmt.Printf("list = http://localhost:4444/list\n")
+	fmt.Printf("remove = http://localhost:4444/remove?id=42\n")
 
 	/// --- Part III: Getting the file and directory you added back
 
