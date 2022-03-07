@@ -1,0 +1,39 @@
+{
+  "items": [
+    {
+      "note": "forbid access to my-test-folder to everyone",
+      "cid": {
+        "/": "QmYQUJyB9sbKkXSKBnWr1P3ARM9B8mSNtJCxUkq5cB4jCv"
+      },
+      "deny": true
+    },
+    {
+      "note": "allow desktop to access the my-test-folder",
+      "cid": {
+        "/": "QmYQUJyB9sbKkXSKBnWr1P3ARM9B8mSNtJCxUkq5cB4jCv"
+      },
+      "peerID": "12D3KooWNQ4EzGXzP2ben53ZWriXfPZMahfGFt6M3vw95cZhjCEb",
+      "allow": true
+    },
+    {
+      "note": "deny laptop access to everything",
+      "peerID": "12D3KooWRUjtFcMFmPrjyy2DKPuyG6eppxpn7vq8eTTV4YmafVsS",
+      "deny": true
+    },
+    {
+      "note": "allow laptop access to diary",
+      "cid": {
+        "/": "QmdR6U64jjTUVs8Ho8MrU5LgCZwiT6ryTi2RWKL2TFXhkH"
+      },
+      "allow": true
+    },
+    {
+      "note": "deny desktop access to diary",
+      "cid": {
+        "/": "QmdR6U64jjTUVs8Ho8MrU5LgCZwiT6ryTi2RWKL2TFXhkH"
+      },
+      "peerID": "12D3KooWNQ4EzGXzP2ben53ZWriXfPZMahfGFt6M3vw95cZhjCEb",
+      "deny": true
+    }
+  ]
+}
