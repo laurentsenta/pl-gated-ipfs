@@ -4,6 +4,7 @@ import (
 	"errors"
 	"net/http"
 	"net/url"
+	"strconv"
 
 	"github.com/ipfs/go-cid"
 	"github.com/libp2p/go-libp2p-core/peer"
@@ -41,7 +42,7 @@ func runAdd(writer http.ResponseWriter, uristr string) error {
 	}
 
 	if u.Query().Has("allow") {
-		x, err := peer.IDFromString(u.Query().Get("peer"))
+		x, err := peer.Decode(u.Query().Get("peer"))
 		if err != nil {
 			return err
 		}
@@ -75,56 +76,26 @@ func runRemove(writer http.ResponseWriter, uristr string) error {
 		return err
 	}
 
-	var newItem AllowListItem
-	validParams, validRule := false, false
+	var id int
+	validParams := false
 
-	if u.Query().Has("peer") {
-		x, err := peer.IDFromString(u.Query().Get("peer"))
+	if u.Query().Has("id") {
+		id, err = strconv.Atoi(u.Query().Get("id"))
 		if err != nil {
 			return err
 		}
-		newItem.PeerID = &x
 		validParams = true
 	}
 
-	if u.Query().Has("cid") {
-		x, err := cid.Decode(u.Query().Get("cid"))
-		if err != nil {
-			return err
-		}
-		newItem.Cid = &x
-		validParams = true
-	}
-
-	if u.Query().Has("allow") {
-		x, err := peer.IDFromString(u.Query().Get("peer"))
-		if err != nil {
-			return err
-		}
-		newItem.PeerID = &x
-		validParams = true
-	}
-
-	if u.Query().Has("deny") {
-		b := u.Query().Get("deny") == "true"
-		newItem.Deny = &b
-		validRule = !validRule
-	}
-	if u.Query().Has("allow") {
-		b := u.Query().Get("allow") == "true"
-		newItem.Allow = &b
-		validRule = !validRule
-	}
-
-	if !validRule || !validParams {
+	if !validParams {
 		return errors.New("invalid input")
 	}
 
 	newItems := make([]AllowListItem, 0, len(alf.Items))
 	found := false
 
-	for _, item := range alf.Items {
-		if item.Cid == newItem.Cid && item.PeerID == newItem.PeerID && item.Allow == newItem.Allow && item.Deny == newItem.Deny {
+	for i, item := range alf.Items {
+		if i == id {
 			found = true
 			continue
 		}

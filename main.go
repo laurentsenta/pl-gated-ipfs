@@ -10,20 +10,41 @@ import (
 	"net"
 	"net/http"
 	"os"
+	"path/filepath"
 	"sync"
 	"time"
 
+	config "github.com/ipfs/go-ipfs-config"
 	files "github.com/ipfs/go-ipfs-files"
-	config "github.com/ipfs/go-ipfs/config"
 	icore "github.com/ipfs/interface-go-ipfs-core"
 	ma "github.com/multiformats/go-multiaddr"
 
 	"github.com/ipfs/go-ipfs/core"
 	"github.com/ipfs/go-ipfs/core/coreapi"
 	"github.com/ipfs/go-ipfs/core/node/libp2p" // This package is needed so that all the preloaded plugins are loaded automatically
+	"github.com/ipfs/go-ipfs/plugin/loader"
 	"github.com/ipfs/go-ipfs/repo/fsrepo"
 	"github.com/libp2p/go-libp2p-core/peer"
 )
+
+func setupPlugins(externalPluginsPath string) error {
+	// Load any external plugins if available on externalPluginsPath
+	plugins, err := loader.NewPluginLoader(filepath.Join(externalPluginsPath, "plugins"))
+	if err != nil {
+		return fmt.Errorf("error loading plugins: %s", err)
+	}
+
+	// Load preloaded and external plugins
+	if err := plugins.Initialize(); err != nil {
+		return fmt.Errorf("error initializing plugins: %s", err)
+	}
+
+	if err := plugins.Inject(); err != nil {
+		return fmt.Errorf("error initializing plugins: %s", err)
+	}
+
+	return nil
+}
 
 /// ------ Setting up the IPFS Repo
 
@@ -67,9 +88,7 @@ func createNode(ctx context.Context, repoPath string) (icore.CoreAPI, error) {
 		Repo: repo,
 	}
 
-	if *flagAllowListPath != "" {
-		nodeOptions.PeerBlockRequestFilter = loadPeerBlockRequestFilter(*flagAllowListPath)
-	}
+	nodeOptions.PeerBlockRequestFilter = loadPeerBlockRequestFilter(*flagAllowListPath)
 
 	node, err := core.NewNode(ctx, nodeOptions)
 	if err != nil {
@@ -84,6 +103,10 @@ func createNode(ctx context.Context, repoPath string) (icore.CoreAPI, error) {
 
 // Spawns a node to be used just for this run (i.e. creates a tmp repo)
 func spawnEphemeral(ctx context.Context) (icore.CoreAPI, error) {
+	if err := setupPlugins(""); err != nil {
+		return nil, err
+	}
+
 	// Create a Temporary Repo
 	repoPath, err := createTempRepo()
 	if err != nil {
@@ -211,6 +234,9 @@ func main() {
 	}
 
 	fmt.Printf("Added directory `%s' to IPFS with CID %s\n", inputPathDirectory, cidDirectory.String())
+	fmt.Printf("Denyall = `http://localhost:4444/add?deny=true&cid=%s'\n", cidDirectory.Cid())
+	fmt.Printf("list = `http://localhost:4444/list\n")
+	fmt.Printf("remove = `http://localhost:4444/remove?id=42\n")
 
 	/// --- Part III: Getting the file and directory you added back
 
@@ -288,7 +314,7 @@ func outputJSONOrErr(writer http.ResponseWriter, out interface{}, err error) {
 		return
 	}
 
-	outputJSON, err := json.Marshal(out)
+	outputJSON, err := json.MarshalIndent(out, "", "\t")
 
 	if err != nil {
 		writer.WriteHeader(http.StatusInternalServerError)

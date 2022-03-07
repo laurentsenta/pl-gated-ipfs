@@ -91,9 +91,12 @@ func loadAllowListJSON(path string) (AllowListFile, error) {
 }
 
 func loadPeerBlockRequestFilter(path string) bitswap.PeerBlockRequestFilter {
-	alf, err := loadAllowListJSON(path)
-	if err != nil {
-		panic(err)
+	if path != "" {
+		var err error
+		alf, err = loadAllowListJSON(path)
+		if err != nil {
+			panic(err)
+		}
 	}
 
 	// fmt.Println("alf:", alf)
