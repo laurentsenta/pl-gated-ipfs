@@ -1,4 +1,17 @@
-# Use go-ipfs as a library to spawn a node and add a file
+# Private/Whitelisted Content on IPFS
+
+Shows a demo for:
+
+- https://github.com/ipfs/go-ipfs/issues/8763
+
+Relies on branches:
+
+- https://github.com/ipfs/go-bitswap/pull/549
+- https://github.com/laurentsenta/go-ipfs/commits/feat/peer-block-filter
+
+Follow up from https://github.com/kylehuntsman/private-ipfs-content
+
+
 
 > This tutorial is the sibling of the [js-ipfs IPFS 101 tutorial](https://github.com/ipfs/js-ipfs/tree/master/examples/ipfs-101).
 
