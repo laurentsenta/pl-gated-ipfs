@@ -196,7 +196,7 @@ func main() {
 
 	/// --- Part I: Getting a IPFS node running
 
-	fmt.Println("-- Getting an IPFS node running -- ")
+	fmt.Println("-- Getting an IPFS node running --")
 
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
@@ -232,11 +232,6 @@ func main() {
 		panic(fmt.Errorf("Could not add Directory: %s", err))
 	}
 
-	fmt.Printf("Added directory `%s' to IPFS with CID: %s\n", inputPathDirectory, cidDirectory.Cid())
-	fmt.Printf("Denyall = http://localhost:4444/add?deny=true&cid=%s\n", cidDirectory.Cid())
-	fmt.Printf("list = http://localhost:4444/list\n")
-	fmt.Printf("remove = http://localhost:4444/remove?id=42\n")
-
 	/// --- Part III: Getting the file and directory you added back
 
 	fmt.Println("\n-- Going to connect to a few nodes in the Network as bootstrappers --")
@@ -266,19 +261,18 @@ func main() {
 	go func() {
 		err := connectToPeers(ctx, ipfs, bootstrapNodes)
 		if err != nil {
-			log.Printf("failed connect to peers: %s", err)
+			// log.Printf("failed connect to peers: %s", err)
 		}
 	}()
 
-	fmt.Println("\nAll done! We are ready.")
+	// --- Part IV: Setup the allow-list API
 
-	// Server
 	l, err := net.Listen("tcp", ":4444")
 	if err != nil {
 		panic(err)
 	}
 
-	fmt.Printf("listening on %v\n", l.Addr())
+	fmt.Printf("API listening on %v\n", l.Addr())
 
 	http.HandleFunc("/add", func(writer http.ResponseWriter, request *http.Request) {
 		err := runAdd(writer, request.RequestURI)
@@ -296,6 +290,16 @@ func main() {
 	})
 
 	fmt.Println("Ready to start serving")
+
+	fmt.Println("\n-- Serving the allow-list API 🔐 --")
+
+	fmt.Printf("- Added directory `%s' to IPFS with CID: %s\n", inputPathDirectory, cidDirectory.Cid())
+	fmt.Printf("- Open this link to deny all access to your test folder:\n   http://localhost:4444/add?deny=true&cid=%s\n", cidDirectory.Cid())
+	fmt.Printf("- Open this link to list all active rules:\n   http://localhost:4444/list\n")
+	fmt.Printf("- Open this link to remove the 42th rule in the list:\n   http://localhost:4444/remove?id=42\n")
+
+	fmt.Println("\n-- Go 🍀 --")
+
 	err = http.Serve(l, nil)
 	if err != nil {
 		panic(err)
