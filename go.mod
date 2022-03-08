@@ -209,7 +209,7 @@ require (
 )
 
 replace github.com/ipfs/go-ipfs => ./../../ipfs/go-ipfs
-
 replace github.com/ipfs/go-bitswap => ./../../ipfs/go-bitswap
+
 
 go 1.17
